@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTG Server — Полная инструкция</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --dim: #94a3b8;
+    --code-bg: #060b14;
+    --code-text: #a8ff78;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  header { padding: 60px 0 40px; border-bottom: 1px solid var(--border); margin-bottom: 48px; position: relative; }
+  header::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 200px; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); }
+  .badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); color: var(--accent); padding: 4px 12px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; margin-bottom: 20px; }
+  .badge::before { content: '◆'; font-size: 8px; }
+  h1 { font-family: 'Unbounded', sans-serif; font-size: clamp(26px,5vw,40px); font-weight: 900; line-height: 1.1; background: linear-gradient(135deg,#fff 0%,var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 16px; }
+  .subtitle { color: var(--dim); font-size: 14px; display: flex; flex-wrap: wrap; gap: 16px; }
+  .subtitle span { display: flex; align-items: center; gap: 6px; }
+  .subtitle span::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; opacity: 0.6; }
+
+  .toc { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent2); border-radius: 8px; padding: 20px 24px; margin-bottom: 48px; }
+  .toc-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent2); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .toc ol { list-style: none; display: grid; grid-template-columns: repeat(auto-fill,minmax(210px,1fr)); gap: 4px; }
+  .toc a { color: var(--dim); text-decoration: none; font-size: 13px; display: flex; align-items: center; gap: 8px; padding: 4px 0; transition: color 0.2s; }
+  .toc a:hover { color: var(--accent); }
+  .toc .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); opacity: 0.6; min-width: 22px; }
+
+  section { margin-bottom: 56px; }
+  h2 { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  h2 .num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); padding: 2px 8px; border-radius: 4px; font-weight: 400; }
+  h3 { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); margin: 24px 0 10px; display: flex; align-items: center; gap: 8px; }
+  h3::before { content: '▸'; opacity: 0.6; }
+  p { color: var(--dim); font-size: 15px; margin-bottom: 12px; }
+
+  .code-wrap { position: relative; margin: 10px 0 20px; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-left: 3px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 20px; overflow-x: auto; }
+  pre::before { content: '$ bash'; position: absolute; top: 8px; right: 50px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(0,212,255,0.3); }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--code-text); line-height: 1.85; white-space: pre; display: block; }
+  code.inline { background: rgba(0,212,255,0.1); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-size: 13px; display: inline; white-space: normal; }
+  .cm { color: #4a5568; }
+
+  .copy-btn { position: absolute; top: 8px; right: 12px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s; z-index: 2; }
+  .copy-btn:hover { background: rgba(0,212,255,0.2); }
+  .copy-btn.ok { color: var(--green); border-color: var(--green); background: rgba(16,185,129,0.1); }
+
+  .callout { border-radius: 8px; padding: 14px 18px; margin: 14px 0; display: flex; gap: 12px; font-size: 14px; }
+  .callout.info { background: rgba(0,212,255,0.07); border: 1px solid rgba(0,212,255,0.15); }
+  .callout.warn { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.2); }
+  .callout.ok { background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.2); }
+  .callout-icon { font-size: 18px; flex-shrink: 0; line-height: 1.5; }
+  .callout-text { color: var(--dim); line-height: 1.6; }
+
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+  .checklist li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--dim); }
+  .check { color: var(--green); }
+
+  .alias-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 10px; margin: 16px 0; }
+  .alias-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; transition: border-color 0.2s; }
+  .alias-card:hover { border-color: rgba(0,212,255,0.3); }
+  .alias-group { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .alias-name { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); font-weight: 600; margin-bottom: 3px; }
+  .alias-desc { font-size: 13px; color: var(--dim); }
+
+  footer { border-top: 1px solid var(--border); padding: 32px 0; margin-top: 64px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .footer-note { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: rgba(148,163,184,0.4); }
+  .footer-stats { display: flex; gap: 20px; }
+  .stat { text-align: center; }
+  .stat-val { font-family: 'Unbounded', sans-serif; font-size: 18px; color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--dim); margin-top: 2px; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  @media (max-width: 600px) { .toc ol, .alias-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="badge">Ubuntu 22.04 · MTG v2 · 3 инстанса · апрель 2026</div>
+  <h1>MTG Proxy Server<br>Полная инструкция</h1>
+  <div class="subtitle">
+    <span>443 — cloudflare.com</span>
+    <span>5223 — apple.com (APNS)</span>
+    <span>8530 — microsoft.com (WSUS)</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-title">// содержание</div>
+  <ol>
+    <li><a href="#req"><span class="num">01</span>Требования</a></li>
+    <li><a href="#setup"><span class="num">02</span>Первичная настройка</a></li>
+    <li><a href="#install"><span class="num">03</span>Установка MTG</a></li>
+    <li><a href="#secrets"><span class="num">04</span>Генерация секретов</a></li>
+    <li><a href="#configs"><span class="num">05</span>Конфиги MTG</a></li>
+    <li><a href="#services"><span class="num">06</span>Systemd сервисы</a></li>
+    <li><a href="#f2b"><span class="num">07</span>Fail2ban</a></li>
+    <li><a href="#autoban"><span class="num">08</span>Автобан</a></li>
+    <li><a href="#mtg-aliases"><span class="num">09</span>Алиасы MTG</a></li>
+    <li><a href="#net-aliases"><span class="num">10</span>Алиасы сеть</a></li>
+    <li><a href="#sys-aliases"><span class="num">11</span>Алиасы система</a></li>
+    <li><a href="#check"><span class="num">12</span>Финальная проверка</a></li>
+    <li><a href="#links"><span class="num">13</span>Ссылки Telegram</a></li>
+    <li><a href="#cheatsheet"><span class="num">14</span>Шпаргалка</a></li>
+  </ol>
+</nav>
+
+<!-- 01 -->
+<section id="req">
+  <h2><span class="num">01</span>Требования</h2>
+  <ul class="checklist">
+    <li><span class="check">✅</span>VPS Ubuntu 22.04 (минимум 512MB RAM, 1 CPU)</li>
+    <li><span class="check">✅</span>Root доступ по SSH</li>
+    <li><span class="check">✅</span>Публичный IP адрес</li>
+    <li><span class="check">✅</span>Порты 443, 5223, 8530 TCP свободны</li>
+  </ul>
+</section>
+
+<!-- 02 -->
+<section id="setup">
+  <h2><span class="num">02</span>Первичная настройка сервера</h2>
+
+  <h3>Обновление системы и установка зависимостей</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>apt update && apt upgrade -y && \
+apt install -y ufw fail2ban curl wget bc sysstat python3</code></pre>
+    <textarea hidden>apt update && apt upgrade -y && \
+apt install -y ufw fail2ban curl wget bc sysstat python3</textarea>
+  </div>
+
+  <h3>Московское время</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>timedatectl set-timezone Europe/Moscow && date</code></pre>
+    <textarea hidden>timedatectl set-timezone Europe/Moscow && date</textarea>
+  </div>
+
+  <h3>Настройка UFW</h3>
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-text">Правила <strong>ALLOW</strong> должны стоять <strong>выше</strong> правил DENY. Иначе UFW заблокирует трафик до того как дойдёт до разрешения портов. Используем <code class="inline">insert 1</code> чтобы гарантировать правильный порядок.</div>
+  </div>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>ufw --force reset && \
+ufw allow 22/tcp && \
+ufw allow 443/tcp && \
+ufw allow 5223/tcp && \
+ufw allow 8530/tcp && \
+ufw --force enable && \
+ufw status numbered</code></pre>
+    <textarea hidden>ufw --force reset && \
+ufw allow 22/tcp && \
+ufw allow 443/tcp && \
+ufw allow 5223/tcp && \
+ufw allow 8530/tcp && \
+ufw --force enable && \
+ufw status numbered</textarea>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-text">Если после настройки баны UFW не работают как ожидается — проверяй порядок правил командой <code class="inline">ufw status numbered</code>. ALLOW для нужных портов должен стоять выше DENY Anywhere.</div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section id="install">
+  <h2><span class="num">03</span>Установка MTG</h2>
+
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>LATEST=$(curl -s https://api.github.com/repos/9seconds/mtg/releases/latest \
+  | grep tag_name | grep -oP '(?<="v)[\d.]+')
+echo "Версия: $LATEST"
+wget -O /tmp/mtg.tar.gz \
+  https://github.com/9seconds/mtg/releases/download/v${LATEST}/mtg-${LATEST}-linux-amd64.tar.gz
+tar -xzf /tmp/mtg.tar.gz -C /tmp
+cp /tmp/mtg-${LATEST}-linux-amd64/mtg /usr/local/bin/mtg
+chmod +x /usr/local/bin/mtg
+mtg --version</code></pre>
+    <textarea hidden>LATEST=$(curl -s https://api.github.com/repos/9seconds/mtg/releases/latest \
+  | grep tag_name | grep -oP '(?<="v)[\d.]+')
+echo "Версия: $LATEST"
+wget -O /tmp/mtg.tar.gz \
+  https://github.com/9seconds/mtg/releases/download/v${LATEST}/mtg-${LATEST}-linux-amd64.tar.gz
+tar -xzf /tmp/mtg.tar.gz -C /tmp
+cp /tmp/mtg-${LATEST}-linux-amd64/mtg /usr/local/bin/mtg
+chmod +x /usr/local/bin/mtg
+mtg --version</textarea>
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="secrets">
+  <h2><span class="num">04</span>Генерация секретов</h2>
+
+  <div class="callout info">
+    <span class="callout-icon">🔑</span>
+    <div class="callout-text">
+      Секрет MTG v2 (FakeTLS) состоит из трёх частей:<br>
+      <code class="inline">ee</code> — префикс FakeTLS режима<br>
+      <code class="inline">16 случайных байт</code> — уникальный ID<br>
+      <code class="inline">hex домена</code> — маскировочный домен (cloudflare/apple/microsoft)<br>
+      Пример: <code class="inline">ee</code> + <code class="inline">3bfb32756cc6363024b1cb9268af8524</code> + <code class="inline">7777772e6170706c652e636f6d</code>
+    </div>
+  </div>
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-text">Сохраните все три секрета — они понадобятся в конфигах и ссылках для подключения!</div>
+  </div>
+
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code><span class="cm"># mtg1 — cloudflare.com порт 443</span>
+RAND1=$(openssl rand -hex 16)
+SECRET1="ee${RAND1}$(echo -n 'www.cloudflare.com' | xxd -p)"
+echo "mtg1 (443  cloudflare): $SECRET1"
+
+<span class="cm"># mtg2 — apple.com порт 5223 (Apple Push Notification)</span>
+RAND2=$(openssl rand -hex 16)
+SECRET2="ee${RAND2}$(echo -n 'www.apple.com' | xxd -p)"
+echo "mtg2 (5223 apple):      $SECRET2"
+
+<span class="cm"># mtg3 — microsoft.com порт 8530 (Windows Server Update Services)</span>
+RAND3=$(openssl rand -hex 16)
+SECRET3="ee${RAND3}$(echo -n 'www.microsoft.com' | xxd -p)"
+echo "mtg3 (8530 microsoft):  $SECRET3"</code></pre>
+    <textarea hidden># mtg1 — cloudflare.com порт 443
+RAND1=$(openssl rand -hex 16)
+SECRET1="ee${RAND1}$(echo -n 'www.cloudflare.com' | xxd -p)"
+echo "mtg1 (443  cloudflare): $SECRET1"
+
+# mtg2 — apple.com порт 5223 (Apple Push Notification)
+RAND2=$(openssl rand -hex 16)
+SECRET2="ee${RAND2}$(echo -n 'www.apple.com' | xxd -p)"
+echo "mtg2 (5223 apple):      $SECRET2"
+
+# mtg3 — microsoft.com порт 8530 (Windows Server Update Services)
+RAND3=$(openssl rand -hex 16)
+SECRET3="ee${RAND3}$(echo -n 'www.microsoft.com' | xxd -p)"
+echo "mtg3 (8530 microsoft):  $SECRET3"</textarea>
+  </div>
+</section>
+
+<!-- 05 -->
+<section id="configs">
+  <h2><span class="num">05</span>Конфиги MTG</h2>
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-text">Замените <code class="inline">ВАШ_СЕКРЕТ_X</code> на соответствующий секрет из шага 04. <code class="inline">EOF</code> должен стоять на отдельной строке без пробелов и отступов.</div>
+  </div>
+
+  <h3>mtg-1.toml — порт 443 cloudflare.com</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /etc/mtg-1.toml << 'EOF'
+secret = "ВАШ_СЕКРЕТ_1"
+bind-to = "0.0.0.0:443"
+
+[stats.prometheus]
+enabled = true
+bind-to = "127.0.0.1:9091"
+http-path = "/metrics"
+
+[defense.doppelganger]
+urls = [
+    "https://www.cloudflare.com/",
+    "https://www.cloudflare.com/products/",
+    "https://www.cloudflare.com/plans/",
+    "https://www.cloudflare.com/learning/",
+    "https://www.cloudflare.com/dns/",
+    "https://www.cloudflare.com/ddos/",
+    "https://www.cloudflare.com/security/",
+    "https://www.cloudflare.com/performance/",
+    "https://www.cloudflare.com/reliability/",
+    "https://www.cloudflare.com/cdn/",
+    "https://www.cloudflare.com/ssl/",
+    "https://www.cloudflare.com/workers/",
+    "https://blog.cloudflare.com/",
+    "https://developers.cloudflare.com/"
+]
+repeats-per-raid = 10
+raid-each = "6h"
+
+[network.keep-alive]
+disabled = false
+EOF</code></pre>
+    <textarea hidden>cat > /etc/mtg-1.toml << 'EOF'
+secret = "ВАШ_СЕКРЕТ_1"
+bind-to = "0.0.0.0:443"
+
+[stats.prometheus]
+enabled = true
+bind-to = "127.0.0.1:9091"
+http-path = "/metrics"
+
+[defense.doppelganger]
+urls = [
+    "https://www.cloudflare.com/",
+    "https://www.cloudflare.com/products/",
+    "https://www.cloudflare.com/plans/",
+    "https://www.cloudflare.com/learning/",
+    "https://www.cloudflare.com/dns/",
+    "https://www.cloudflare.com/ddos/",
+    "https://www.cloudflare.com/security/",
+    "https://www.cloudflare.com/performance/",
+    "https://www.cloudflare.com/reliability/",
+    "https://www.cloudflare.com/cdn/",
+    "https://www.cloudflare.com/ssl/",
+    "https://www.cloudflare.com/workers/",
+    "https://blog.cloudflare.com/",
+    "https://developers.cloudflare.com/"
+]
+repeats-per-raid = 10
+raid-each = "6h"
+
+[network.keep-alive]
+disabled = false
+EOF</textarea>
+  </div>
+
+  <h3>mtg-2.toml — порт 5223 apple.com</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /etc/mtg-2.toml << 'EOF'
+secret = "ВАШ_СЕКРЕТ_2"
+bind-to = "0.0.0.0:5223"
+
+[stats.prometheus]
+enabled = true
+bind-to = "127.0.0.1:9092"
+http-path = "/metrics"
+
+[defense.doppelganger]
+urls = [
+    "https://www.apple.com/",
+    "https://www.apple.com/iphone/",
+    "https://www.apple.com/mac/",
+    "https://www.apple.com/ipad/",
+    "https://www.apple.com/airpods/",
+    "https://www.apple.com/apple-watch/",
+    "https://www.apple.com/ios/ios-18/",
+    "https://www.apple.com/shop/buy-iphone",
+    "https://www.apple.com/macos/",
+    "https://www.apple.com/apple-tv-app/",
+    "https://www.apple.com/apple-music/",
+    "https://www.apple.com/icloud/",
+    "https://www.apple.com/services/",
+    "https://support.apple.com/"
+]
+repeats-per-raid = 10
+raid-each = "6h"
+
+[network.keep-alive]
+disabled = false
+EOF</code></pre>
+    <textarea hidden>cat > /etc/mtg-2.toml << 'EOF'
+secret = "ВАШ_СЕКРЕТ_2"
+bind-to = "0.0.0.0:5223"
+
+[stats.prometheus]
+enabled = true
+bind-to = "127.0.0.1:9092"
+http-path = "/metrics"
+
+[defense.doppelganger]
+urls = [
+    "https://www.apple.com/",
+    "https://www.apple.com/iphone/",
+    "https://www.apple.com/mac/",
+    "https://www.apple.com/ipad/",
+    "https://www.apple.com/airpods/",
+    "https://www.apple.com/apple-watch/",
+    "https://www.apple.com/ios/ios-18/",
+    "https://www.apple.com/shop/buy-iphone",
+    "https://www.apple.com/macos/",
+    "https://www.apple.com/apple-tv-app/",
+    "https://www.apple.com/apple-music/",
+    "https://www.apple.com/icloud/",
+    "https://www.apple.com/services/",
+    "https://support.apple.com/"
+]
+repeats-per-raid = 10
+raid-each = "6h"
+
+[network.keep-alive]
+disabled = false
+EOF</textarea>
+  </div>
+
+  <h3>mtg-3.toml — порт 8530 microsoft.com</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /etc/mtg-3.toml << 'EOF'
+secret = "ВАШ_СЕКРЕТ_3"
+bind-to = "0.0.0.0:8530"
+
+[stats.prometheus]
+enabled = true
+bind-to = "127.0.0.1:9093"
+http-path = "/metrics"
+
+[defense.doppelganger]
+urls = [
+    "https://www.microsoft.com/",
+    "https://www.microsoft.com/en-us/windows",
+    "https://www.microsoft.com/en-us/microsoft-365",
+    "https://www.microsoft.com/en-us/surface",
+    "https://www.microsoft.com/en-us/xbox",
+    "https://www.microsoft.com/en-us/store/b/home",
+    "https://www.microsoft.com/en-us/security",
+    "https://azure.microsoft.com/en-us/",
+    "https://www.microsoft.com/en-us/edge",
+    "https://www.microsoft.com/en-us/teams",
+    "https://support.microsoft.com/",
+    "https://docs.microsoft.com/",
+    "https://www.microsoft.com/en-us/software-download/windows11",
+    "https://www.microsoft.com/en-us/windows/windows-11"
+]
+repeats-per-raid = 10
+raid-each = "6h"
+
+[network.keep-alive]
+disabled = false
+EOF</code></pre>
+    <textarea hidden>cat > /etc/mtg-3.toml << 'EOF'
+secret = "ВАШ_СЕКРЕТ_3"
+bind-to = "0.0.0.0:8530"
+
+[stats.prometheus]
+enabled = true
+bind-to = "127.0.0.1:9093"
+http-path = "/metrics"
+
+[defense.doppelganger]
+urls = [
+    "https://www.microsoft.com/",
+    "https://www.microsoft.com/en-us/windows",
+    "https://www.microsoft.com/en-us/microsoft-365",
+    "https://www.microsoft.com/en-us/surface",
+    "https://www.microsoft.com/en-us/xbox",
+    "https://www.microsoft.com/en-us/store/b/home",
+    "https://www.microsoft.com/en-us/security",
+    "https://azure.microsoft.com/en-us/",
+    "https://www.microsoft.com/en-us/edge",
+    "https://www.microsoft.com/en-us/teams",
+    "https://support.microsoft.com/",
+    "https://docs.microsoft.com/",
+    "https://www.microsoft.com/en-us/software-download/windows11",
+    "https://www.microsoft.com/en-us/windows/windows-11"
+]
+repeats-per-raid = 10
+raid-each = "6h"
+
+[network.keep-alive]
+disabled = false
+EOF</code></pre>
+    <textarea hidden>cat > /etc/mtg-3.toml << 'EOF'
+secret = "ВАШ_СЕКРЕТ_3"
+bind-to = "0.0.0.0:8530"
+
+[stats.prometheus]
+enabled = true
+bind-to = "127.0.0.1:9093"
+http-path = "/metrics"
+
+[defense.doppelganger]
+urls = [
+    "https://www.microsoft.com/",
+    "https://www.microsoft.com/en-us/windows",
+    "https://www.microsoft.com/en-us/microsoft-365",
+    "https://www.microsoft.com/en-us/surface",
+    "https://www.microsoft.com/en-us/xbox",
+    "https://www.microsoft.com/en-us/store/b/home",
+    "https://www.microsoft.com/en-us/security",
+    "https://azure.microsoft.com/en-us/",
+    "https://www.microsoft.com/en-us/edge",
+    "https://www.microsoft.com/en-us/teams",
+    "https://support.microsoft.com/",
+    "https://docs.microsoft.com/",
+    "https://www.microsoft.com/en-us/software-download/windows11",
+    "https://www.microsoft.com/en-us/windows/windows-11"
+]
+repeats-per-raid = 10
+raid-each = "6h"
+
+[network.keep-alive]
+disabled = false
+EOF</textarea>
+  </div>
+</section>
+
+<!-- 06 -->
+<section id="services">
+  <h2><span class="num">06</span>Systemd сервисы</h2>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /etc/systemd/system/mtg1.service << 'EOF'
+[Unit]
+Description=MTG Proxy 1 (port 443 cloudflare.com)
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/mtg run /etc/mtg-1.toml
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat > /etc/systemd/system/mtg2.service << 'EOF'
+[Unit]
+Description=MTG Proxy 2 (port 5223 apple.com)
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/mtg run /etc/mtg-2.toml
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat > /etc/systemd/system/mtg3.service << 'EOF'
+[Unit]
+Description=MTG Proxy 3 (port 8530 microsoft.com)
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/mtg run /etc/mtg-3.toml
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload && \
+systemctl enable mtg1 mtg2 mtg3 && \
+systemctl start mtg1 mtg2 mtg3 && \
+systemctl status mtg1 mtg2 mtg3 --no-pager | grep -E 'MTG|Active'</code></pre>
+    <textarea hidden>cat > /etc/systemd/system/mtg1.service << 'EOF'
+[Unit]
+Description=MTG Proxy 1 (port 443 cloudflare.com)
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/mtg run /etc/mtg-1.toml
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat > /etc/systemd/system/mtg2.service << 'EOF'
+[Unit]
+Description=MTG Proxy 2 (port 5223 apple.com)
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/mtg run /etc/mtg-2.toml
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat > /etc/systemd/system/mtg3.service << 'EOF'
+[Unit]
+Description=MTG Proxy 3 (port 8530 microsoft.com)
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/mtg run /etc/mtg-3.toml
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload && \
+systemctl enable mtg1 mtg2 mtg3 && \
+systemctl start mtg1 mtg2 mtg3 && \
+systemctl status mtg1 mtg2 mtg3 --no-pager | grep -E 'MTG|Active'</textarea>
+  </div>
+</section>
+
+<!-- 07 -->
+<section id="f2b">
+  <h2><span class="num">07</span>Fail2ban — защита SSH</h2>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /etc/fail2ban/jail.d/ssh.conf << 'EOF'
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+bantime = -1
+findtime = 600
+EOF
+
+systemctl enable fail2ban && \
+systemctl restart fail2ban && \
+sleep 3 && \
+fail2ban-client status</code></pre>
+    <textarea hidden>cat > /etc/fail2ban/jail.d/ssh.conf << 'EOF'
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+bantime = -1
+findtime = 600
+EOF
+
+systemctl enable fail2ban && \
+systemctl restart fail2ban && \
+sleep 3 && \
+fail2ban-client status</textarea>
+  </div>
+</section>
+
+<!-- 08 -->
+<section id="autoban">
+  <h2><span class="num">08</span>Скрипты автобана MTG</h2>
+
+  <h3>mtg-autoban.sh — бан при 500+ соединениях с одного IP</h3>
+  <div class="callout info">
+    <span class="callout-icon">🤖</span>
+    <div class="callout-text">
+      Whitelist: <code class="inline">91.108.x.x</code> и <code class="inline">149.154.x.x</code> — Telegram DC, никогда не банятся.<br>
+      Запускается каждые 10 минут через cron. Лог: <code class="inline">/var/log/mtg-autoban.log</code>
+    </div>
+  </div>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /usr/local/bin/mtg-autoban.sh << 'EOF'
+#!/bin/bash
+THRESHOLD=500
+PORTS="443 5223 8530"
+WHITELIST="91.108. 149.154."
+LOGFILE="/var/log/mtg-autoban.log"
+
+for PORT in $PORTS; do
+    ss -tn state established sport = :$PORT \
+        | awk 'NR>1 {print $4}' \
+        | cut -d: -f1 \
+        | grep -v -E "$(echo $WHITELIST | tr ' ' '|')" \
+        | sort | uniq -c \
+        | while read COUNT IP; do
+            if [ -z "$IP" ]; then continue; fi
+            if [ "$COUNT" -gt "$THRESHOLD" ]; then
+                if ! ufw status | grep -q "DENY.*$IP"; then
+                    echo "$(date): Banning $IP ($COUNT conn on :$PORT)" | tee -a $LOGFILE
+                    ufw deny from $IP
+                    logger "mtg-autoban: banned $IP ($COUNT connections on :$PORT)"
+                fi
+            fi
+        done
+done
+EOF
+
+chmod +x /usr/local/bin/mtg-autoban.sh && \
+echo '*/10 * * * * root /usr/local/bin/mtg-autoban.sh' > /etc/cron.d/mtg-autoban && \
+echo "✅ Автобан установлен"</code></pre>
+    <textarea hidden>cat > /usr/local/bin/mtg-autoban.sh << 'EOF'
+#!/bin/bash
+THRESHOLD=500
+PORTS="443 5223 8530"
+WHITELIST="91.108. 149.154."
+LOGFILE="/var/log/mtg-autoban.log"
+
+for PORT in $PORTS; do
+    ss -tn state established sport = :$PORT \
+        | awk 'NR>1 {print $4}' \
+        | cut -d: -f1 \
+        | grep -v -E "$(echo $WHITELIST | tr ' ' '|')" \
+        | sort | uniq -c \
+        | while read COUNT IP; do
+            if [ -z "$IP" ]; then continue; fi
+            if [ "$COUNT" -gt "$THRESHOLD" ]; then
+                if ! ufw status | grep -q "DENY.*$IP"; then
+                    echo "$(date): Banning $IP ($COUNT conn on :$PORT)" | tee -a $LOGFILE
+                    ufw deny from $IP
+                    logger "mtg-autoban: banned $IP ($COUNT connections on :$PORT)"
+                fi
+            fi
+        done
+done
+EOF
+
+chmod +x /usr/local/bin/mtg-autoban.sh && \
+echo '*/10 * * * * root /usr/local/bin/mtg-autoban.sh' > /etc/cron.d/mtg-autoban && \
+echo "✅ Автобан установлен"</textarea>
+  </div>
+
+  <h3>mtg-killbanned.sh — убивает сессии забаненных IP</h3>
+  <div class="callout info">
+    <span class="callout-icon">💤</span>
+    <div class="callout-text">Закомментирован в кроне по умолчанию. Включить при необходимости — убрать <code class="inline">#</code> из файла cron.</div>
+  </div>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /usr/local/bin/mtg-killbanned.sh << 'EOF'
+#!/bin/bash
+BANNED=$(ufw status | grep 'DENY' | awk '{print $3}' | grep -v 'Anywhere')
+for IP in $BANNED; do
+    COUNT=$(ss -tn state established | grep "$IP" | wc -l)
+    if [ "$COUNT" -gt 0 ]; then
+        echo "$(date): Killing $COUNT connections from $IP"
+        ss -K dst "$IP" 2>/dev/null
+    fi
+done
+EOF
+
+chmod +x /usr/local/bin/mtg-killbanned.sh && \
+echo '#*/5 * * * * root /usr/local/bin/mtg-killbanned.sh' > /etc/cron.d/mtg-killbanned && \
+echo "✅ Готово (выключен)"</code></pre>
+    <textarea hidden>cat > /usr/local/bin/mtg-killbanned.sh << 'EOF'
+#!/bin/bash
+BANNED=$(ufw status | grep 'DENY' | awk '{print $3}' | grep -v 'Anywhere')
+for IP in $BANNED; do
+    COUNT=$(ss -tn state established | grep "$IP" | wc -l)
+    if [ "$COUNT" -gt 0 ]; then
+        echo "$(date): Killing $COUNT connections from $IP"
+        ss -K dst "$IP" 2>/dev/null
+    fi
+done
+EOF
+
+chmod +x /usr/local/bin/mtg-killbanned.sh && \
+echo '#*/5 * * * * root /usr/local/bin/mtg-killbanned.sh' > /etc/cron.d/mtg-killbanned && \
+echo "✅ Готово (выключен)"</textarea>
+  </div>
+
+  <h3>mtg-logger.sh — логгер подключений для mstats</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /usr/local/bin/mtg-logger.sh << 'EOF'
+#!/bin/bash
+LOGFILE="/var/log/mtg-connections.log"
+C1=$(curl -s http://127.0.0.1:9091/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C2=$(curl -s http://127.0.0.1:9092/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C3=$(curl -s http://127.0.0.1:9093/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+TOTAL=$(( ${C1:-0} + ${C2:-0} + ${C3:-0} ))
+echo "$(date '+%Y-%m-%d %H:%M') ${C1:-0} ${C2:-0} ${C3:-0} $TOTAL" >> $LOGFILE
+tail -2016 $LOGFILE > ${LOGFILE}.tmp && mv ${LOGFILE}.tmp $LOGFILE
+EOF
+
+chmod +x /usr/local/bin/mtg-logger.sh && \
+echo '*/5 * * * * root /usr/local/bin/mtg-logger.sh' > /etc/cron.d/mtg-logger && \
+/usr/local/bin/mtg-logger.sh && \
+cat /var/log/mtg-connections.log</code></pre>
+    <textarea hidden>cat > /usr/local/bin/mtg-logger.sh << 'EOF'
+#!/bin/bash
+LOGFILE="/var/log/mtg-connections.log"
+C1=$(curl -s http://127.0.0.1:9091/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C2=$(curl -s http://127.0.0.1:9092/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C3=$(curl -s http://127.0.0.1:9093/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+TOTAL=$(( ${C1:-0} + ${C2:-0} + ${C3:-0} ))
+echo "$(date '+%Y-%m-%d %H:%M') ${C1:-0} ${C2:-0} ${C3:-0} $TOTAL" >> $LOGFILE
+tail -2016 $LOGFILE > ${LOGFILE}.tmp && mv ${LOGFILE}.tmp $LOGFILE
+EOF
+
+chmod +x /usr/local/bin/mtg-logger.sh && \
+echo '*/5 * * * * root /usr/local/bin/mtg-logger.sh' > /etc/cron.d/mtg-logger && \
+/usr/local/bin/mtg-logger.sh && \
+cat /var/log/mtg-connections.log</textarea>
+  </div>
+</section>
+
+<!-- 09 -->
+<section id="mtg-aliases">
+  <h2><span class="num">09</span>Алиасы MTG</h2>
+
+  <h3>mstat — подключения сейчас</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /usr/local/bin/mstat.sh << 'EOF'
+#!/bin/bash
+C1=$(curl -s http://127.0.0.1:9091/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C2=$(curl -s http://127.0.0.1:9092/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C3=$(curl -s http://127.0.0.1:9093/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+TOTAL=$(( ${C1:-0} + ${C2:-0} + ${C3:-0} ))
+echo "📊 MTG СТАТИСТИКА ПОДКЛЮЧЕНИЙ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Сейчас:"
+echo ""
+echo "   🔹 mtg1 (443  cloudflare.com)  ${C1:-0} подкл."
+echo "   🔹 mtg2 (5223 apple.com)       ${C2:-0} подкл."
+echo "   🔹 mtg3 (8530 microsoft.com)   ${C3:-0} подкл."
+echo ""
+echo "   📈 Итого: $TOTAL подкл."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+chmod +x /usr/local/bin/mstat.sh && \
+sed -i '/alias mstat=/d' /root/.bashrc && \
+echo "alias mstat='/usr/local/bin/mstat.sh'" >> /root/.bashrc && \
+source /root/.bashrc && mstat</code></pre>
+    <textarea hidden>cat > /usr/local/bin/mstat.sh << 'EOF'
+#!/bin/bash
+C1=$(curl -s http://127.0.0.1:9091/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C2=$(curl -s http://127.0.0.1:9092/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C3=$(curl -s http://127.0.0.1:9093/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+TOTAL=$(( ${C1:-0} + ${C2:-0} + ${C3:-0} ))
+echo "📊 MTG СТАТИСТИКА ПОДКЛЮЧЕНИЙ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Сейчас:"
+echo ""
+echo "   🔹 mtg1 (443  cloudflare.com)  ${C1:-0} подкл."
+echo "   🔹 mtg2 (5223 apple.com)       ${C2:-0} подкл."
+echo "   🔹 mtg3 (8530 microsoft.com)   ${C3:-0} подкл."
+echo ""
+echo "   📈 Итого: $TOTAL подкл."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+chmod +x /usr/local/bin/mstat.sh && \
+sed -i '/alias mstat=/d' /root/.bashrc && \
+echo "alias mstat='/usr/local/bin/mstat.sh'" >> /root/.bashrc && \
+source /root/.bashrc && mstat</textarea>
+  </div>
+
+  <h3>mstats — подключения + история 2ч/24ч</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /usr/local/bin/mstats.sh << 'EOF'
+#!/bin/bash
+LOGFILE="/var/log/mtg-connections.log"
+C1=$(curl -s http://127.0.0.1:9091/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C2=$(curl -s http://127.0.0.1:9092/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C3=$(curl -s http://127.0.0.1:9093/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+TOTAL=$(( ${C1:-0} + ${C2:-0} + ${C3:-0} ))
+echo "📊 MTG СТАТИСТИКА ПОДКЛЮЧЕНИЙ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Сейчас:"
+echo ""
+echo "   🔹 mtg1 (443  cloudflare.com)  ${C1:-0} подкл."
+echo "   🔹 mtg2 (5223 apple.com)       ${C2:-0} подкл."
+echo "   🔹 mtg3 (8530 microsoft.com)   ${C3:-0} подкл."
+echo ""
+echo "   📈 Итого: $TOTAL подкл."
+SINCE_2H=$(date -d '2 hours ago' '+%Y-%m-%d %H:%M')
+SINCE_24H=$(date -d '24 hours ago' '+%Y-%m-%d %H:%M')
+get_stats() {
+    local col=$1 since=$2
+    AVG=$(awk -v s="$since" -v c="$col" '$0>=s{sum+=$c;cnt++} END{if(cnt>0)printf "%.0f",sum/cnt;else print 0}' $LOGFILE 2>/dev/null)
+    MAX=$(awk -v s="$since" -v c="$col" '$0>=s{if($c+0>max)max=$c+0} END{print max+0}' $LOGFILE 2>/dev/null)
+    echo "${AVG:-0} ${MAX:-0}"
+}
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🕐 За 2 часа (среднее / макс):"
+echo ""
+echo "   🔹 mtg1 cloudflare.com  $(get_stats 2 "$SINCE_2H" | awk '{print $1}') / $(get_stats 2 "$SINCE_2H" | awk '{print $2}')"
+echo "   🔹 mtg2 apple.com       $(get_stats 3 "$SINCE_2H" | awk '{print $1}') / $(get_stats 3 "$SINCE_2H" | awk '{print $2}')"
+echo "   🔹 mtg3 microsoft.com   $(get_stats 4 "$SINCE_2H" | awk '{print $1}') / $(get_stats 4 "$SINCE_2H" | awk '{print $2}')"
+echo ""
+echo "   📈 Итого               $(get_stats 5 "$SINCE_2H" | awk '{print $1}') / $(get_stats 5 "$SINCE_2H" | awk '{print $2}')"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📅 За 24 часа (среднее / макс):"
+echo ""
+echo "   🔹 mtg1 cloudflare.com  $(get_stats 2 "$SINCE_24H" | awk '{print $1}') / $(get_stats 2 "$SINCE_24H" | awk '{print $2}')"
+echo "   🔹 mtg2 apple.com       $(get_stats 3 "$SINCE_24H" | awk '{print $1}') / $(get_stats 3 "$SINCE_24H" | awk '{print $2}')"
+echo "   🔹 mtg3 microsoft.com   $(get_stats 4 "$SINCE_24H" | awk '{print $1}') / $(get_stats 4 "$SINCE_24H" | awk '{print $2}')"
+echo ""
+echo "   📈 Итого               $(get_stats 5 "$SINCE_24H" | awk '{print $1}') / $(get_stats 5 "$SINCE_24H" | awk '{print $2}')"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+chmod +x /usr/local/bin/mstats.sh && \
+sed -i '/alias mstats=/d' /root/.bashrc && \
+echo "alias mstats='/usr/local/bin/mstats.sh'" >> /root/.bashrc && \
+source /root/.bashrc && echo "✅ OK"</code></pre>
+    <textarea hidden>cat > /usr/local/bin/mstats.sh << 'EOF'
+#!/bin/bash
+LOGFILE="/var/log/mtg-connections.log"
+C1=$(curl -s http://127.0.0.1:9091/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C2=$(curl -s http://127.0.0.1:9092/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+C3=$(curl -s http://127.0.0.1:9093/metrics | grep "mtg_client_connections{" | awk '{print $2}' | cut -d. -f1)
+TOTAL=$(( ${C1:-0} + ${C2:-0} + ${C3:-0} ))
+echo "📊 MTG СТАТИСТИКА ПОДКЛЮЧЕНИЙ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Сейчас:"
+echo ""
+echo "   🔹 mtg1 (443  cloudflare.com)  ${C1:-0} подкл."
+echo "   🔹 mtg2 (5223 apple.com)       ${C2:-0} подкл."
+echo "   🔹 mtg3 (8530 microsoft.com)   ${C3:-0} подкл."
+echo ""
+echo "   📈 Итого: $TOTAL подкл."
+SINCE_2H=$(date -d '2 hours ago' '+%Y-%m-%d %H:%M')
+SINCE_24H=$(date -d '24 hours ago' '+%Y-%m-%d %H:%M')
+get_stats() {
+    local col=$1 since=$2
+    AVG=$(awk -v s="$since" -v c="$col" '$0>=s{sum+=$c;cnt++} END{if(cnt>0)printf "%.0f",sum/cnt;else print 0}' $LOGFILE 2>/dev/null)
+    MAX=$(awk -v s="$since" -v c="$col" '$0>=s{if($c+0>max)max=$c+0} END{print max+0}' $LOGFILE 2>/dev/null)
+    echo "${AVG:-0} ${MAX:-0}"
+}
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🕐 За 2 часа (среднее / макс):"
+echo ""
+echo "   🔹 mtg1 cloudflare.com  $(get_stats 2 "$SINCE_2H" | awk '{print $1}') / $(get_stats 2 "$SINCE_2H" | awk '{print $2}')"
+echo "   🔹 mtg2 apple.com       $(get_stats 3 "$SINCE_2H" | awk '{print $1}') / $(get_stats 3 "$SINCE_2H" | awk '{print $2}')"
+echo "   🔹 mtg3 microsoft.com   $(get_stats 4 "$SINCE_2H" | awk '{print $1}') / $(get_stats 4 "$SINCE_2H" | awk '{print $2}')"
+echo ""
+echo "   📈 Итого               $(get_stats 5 "$SINCE_2H" | awk '{print $1}') / $(get_stats 5 "$SINCE_2H" | awk '{print $2}')"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📅 За 24 часа (среднее / макс):"
+echo ""
+echo "   🔹 mtg1 cloudflare.com  $(get_stats 2 "$SINCE_24H" | awk '{print $1}') / $(get_stats 2 "$SINCE_24H" | awk '{print $2}')"
+echo "   🔹 mtg2 apple.com       $(get_stats 3 "$SINCE_24H" | awk '{print $1}') / $(get_stats 3 "$SINCE_24H" | awk '{print $2}')"
+echo "   🔹 mtg3 microsoft.com   $(get_stats 4 "$SINCE_24H" | awk '{print $1}') / $(get_stats 4 "$SINCE_24H" | awk '{print $2}')"
+echo ""
+echo "   📈 Итого               $(get_stats 5 "$SINCE_24H" | awk '{print $1}') / $(get_stats 5 "$SINCE_24H" | awk '{print $2}')"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+chmod +x /usr/local/bin/mstats.sh && \
+sed -i '/alias mstats=/d' /root/.bashrc && \
+echo "alias mstats='/usr/local/bin/mstats.sh'" >> /root/.bashrc && \
+source /root/.bashrc && echo "✅ OK"</textarea>
+  </div>
+
+  <h3>mstatu — уникальные клиенты</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /usr/local/bin/mstatu.sh << 'EOF'
+#!/bin/bash
+SERVER_IP=$(curl -s ifconfig.me)
+echo "👥 MTG УНИКАЛЬНЫЕ КЛИЕНТЫ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Сейчас:"
+echo ""
+U1=$(ss -tn state established | grep "${SERVER_IP}:443"  | awk '{print $4}' | cut -d: -f1 | sort -u | grep -v '^$' | wc -l)
+U2=$(ss -tn state established | grep "${SERVER_IP}:5223" | awk '{print $4}' | cut -d: -f1 | sort -u | grep -v '^$' | wc -l)
+U3=$(ss -tn state established | grep "${SERVER_IP}:8530" | awk '{print $4}' | cut -d: -f1 | sort -u | grep -v '^$' | wc -l)
+UTOTAL=$(ss -tn state established | grep -E "${SERVER_IP}:(443|5223|8530)" | awk '{print $4}' | cut -d: -f1 | sort -u | grep -v '^$' | wc -l)
+echo "   🔹 mtg1 (443  cloudflare.com)  ${U1} клиентов"
+echo "   🔹 mtg2 (5223 apple.com)       ${U2} клиентов"
+echo "   🔹 mtg3 (8530 microsoft.com)   ${U3} клиентов"
+echo ""
+echo "   👥 Итого уникальных: $UTOTAL"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+chmod +x /usr/local/bin/mstatu.sh && \
+sed -i '/alias mstatu=/d' /root/.bashrc && \
+echo "alias mstatu='/usr/local/bin/mstatu.sh'" >> /root/.bashrc && \
+source /root/.bashrc && echo "✅ OK"</code></pre>
+    <textarea hidden>cat > /usr/local/bin/mstatu.sh << 'EOF'
+#!/bin/bash
+SERVER_IP=$(curl -s ifconfig.me)
+echo "👥 MTG УНИКАЛЬНЫЕ КЛИЕНТЫ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Сейчас:"
+echo ""
+U1=$(ss -tn state established | grep "${SERVER_IP}:443"  | awk '{print $4}' | cut -d: -f1 | sort -u | grep -v '^$' | wc -l)
+U2=$(ss -tn state established | grep "${SERVER_IP}:5223" | awk '{print $4}' | cut -d: -f1 | sort -u | grep -v '^$' | wc -l)
+U3=$(ss -tn state established | grep "${SERVER_IP}:8530" | awk '{print $4}' | cut -d: -f1 | sort -u | grep -v '^$' | wc -l)
+UTOTAL=$(ss -tn state established | grep -E "${SERVER_IP}:(443|5223|8530)" | awk '{print $4}' | cut -d: -f1 | sort -u | grep -v '^$' | wc -l)
+echo "   🔹 mtg1 (443  cloudflare.com)  ${U1} клиентов"
+echo "   🔹 mtg2 (5223 apple.com)       ${U2} клиентов"
+echo "   🔹 mtg3 (8530 microsoft.com)   ${U3} клиентов"
+echo ""
+echo "   👥 Итого уникальных: $UTOTAL"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+chmod +x /usr/local/bin/mstatu.sh && \
+sed -i '/alias mstatu=/d' /root/.bashrc && \
+echo "alias mstatu='/usr/local/bin/mstatu.sh'" >> /root/.bashrc && \
+source /root/.bashrc && echo "✅ OK"</textarea>
+  </div>
+
+  <h3>mban, mclear, mnew, mupdate, mlink — одним блоком</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /usr/local/bin/mban.sh << 'EOF'
+#!/bin/bash
+echo "🚫 Забаненные IP:"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ufw status | grep DENY | awk '{print $3}' | while read IP; do
+    INFO=$(curl -s https://ipinfo.io/$IP | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('org','?'), '|', d.get('city','?'))" 2>/dev/null)
+    echo "🔴 $IP — $INFO"
+done
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Всего: $(ufw status | grep -c DENY)"
+EOF
+
+cat > /usr/local/bin/mclear.sh << 'EOF'
+#!/bin/bash
+echo "🧹 Очистка банов..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ufw status | grep DENY | awk '{print $3}' | while read IP; do
+    INFO=$(curl -s https://ipinfo.io/$IP | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('org','?'), '|', d.get('city','?'))" 2>/dev/null)
+    echo "🗑️  Удаляем $IP — $INFO"
+    ufw delete deny from $IP > /dev/null
+done
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ Все баны удалены"
+EOF
+
+cat > /usr/local/bin/mupdate.sh << 'EOF'
+#!/bin/bash
+VERSION=$(curl -s https://api.github.com/repos/9seconds/mtg/releases/latest | grep -oP '(?<="tag_name": "v)[\d.]+')
+echo "🔍 Найдена версия: $VERSION"
+wget -q -O /tmp/mtg.tar.gz https://github.com/9seconds/mtg/releases/download/v${VERSION}/mtg-${VERSION}-linux-amd64.tar.gz
+echo "✅ Скачан"
+tar -xzf /tmp/mtg.tar.gz -C /tmp
+systemctl stop mtg1 mtg2 mtg3 && echo "⏹️  Остановлены"
+cp /tmp/mtg-${VERSION}-linux-amd64/mtg /usr/local/bin/mtg && chmod +x /usr/local/bin/mtg
+systemctl start mtg1 mtg2 mtg3 && echo "▶️  Запущены"
+mtg --version && echo "🎉 Готово!"
+EOF
+
+cat > /usr/local/bin/mlink.sh << 'EOF'
+#!/bin/bash
+IP=$(curl -s ifconfig.me)
+S1="ВАШ_СЕКРЕТ_1"
+S2="ВАШ_СЕКРЕТ_2"
+S3="ВАШ_СЕКРЕТ_3"
+echo "🔗 ССЫЛКИ MTG ПРОКСИ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "🔹 mtg1 (443 cloudflare.com):"
+echo "   https://t.me/proxy?server=${IP}&port=443&secret=${S1}"
+echo ""
+echo "🔹 mtg2 (5223 apple.com):"
+echo "   https://t.me/proxy?server=${IP}&port=5223&secret=${S2}"
+echo ""
+echo "🔹 mtg3 (8530 microsoft.com):"
+echo "   https://t.me/proxy?server=${IP}&port=8530&secret=${S3}"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+chmod +x /usr/local/bin/mban.sh /usr/local/bin/mclear.sh \
+         /usr/local/bin/mupdate.sh /usr/local/bin/mlink.sh && \
+sed -i '/alias mban=/d;/alias mclear=/d;/alias mupdate=/d;/alias mlink=/d;/alias mnew=/d' /root/.bashrc && \
+cat >> /root/.bashrc << 'BASHEOF'
+alias mban='/usr/local/bin/mban.sh'
+alias mclear='/usr/local/bin/mclear.sh'
+alias mupdate='/usr/local/bin/mupdate.sh'
+alias mlink='/usr/local/bin/mlink.sh'
+alias mnew='CURRENT=$(mtg --version | grep -oP "2\.\d+\.\d+"); LATEST=$(curl -s https://api.github.com/repos/9seconds/mtg/releases/latest | grep -oP "(?<=\"tag_name\": \"v)\d+\.\d+\.\d+"); echo "Текущая: $CURRENT | Последняя: $LATEST"; [ "$CURRENT" = "$LATEST" ] && echo "✅ Актуальная" || echo "⚠️ Доступно обновление!"'
+BASHEOF
+source /root/.bashrc && echo "✅ Все алиасы MTG установлены"</code></pre>
+    <textarea hidden>cat > /usr/local/bin/mban.sh << 'EOF'
+#!/bin/bash
+echo "🚫 Забаненные IP:"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ufw status | grep DENY | awk '{print $3}' | while read IP; do
+    INFO=$(curl -s https://ipinfo.io/$IP | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('org','?'), '|', d.get('city','?'))" 2>/dev/null)
+    echo "🔴 $IP — $INFO"
+done
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Всего: $(ufw status | grep -c DENY)"
+EOF
+
+cat > /usr/local/bin/mclear.sh << 'EOF'
+#!/bin/bash
+echo "🧹 Очистка банов..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ufw status | grep DENY | awk '{print $3}' | while read IP; do
+    INFO=$(curl -s https://ipinfo.io/$IP | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('org','?'), '|', d.get('city','?'))" 2>/dev/null)
+    echo "🗑️  Удаляем $IP — $INFO"
+    ufw delete deny from $IP > /dev/null
+done
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ Все баны удалены"
+EOF
+
+cat > /usr/local/bin/mupdate.sh << 'EOF'
+#!/bin/bash
+VERSION=$(curl -s https://api.github.com/repos/9seconds/mtg/releases/latest | grep -oP '(?<="tag_name": "v)[\d.]+')
+echo "🔍 Найдена версия: $VERSION"
+wget -q -O /tmp/mtg.tar.gz https://github.com/9seconds/mtg/releases/download/v${VERSION}/mtg-${VERSION}-linux-amd64.tar.gz
+echo "✅ Скачан"
+tar -xzf /tmp/mtg.tar.gz -C /tmp
+systemctl stop mtg1 mtg2 mtg3 && echo "⏹️  Остановлены"
+cp /tmp/mtg-${VERSION}-linux-amd64/mtg /usr/local/bin/mtg && chmod +x /usr/local/bin/mtg
+systemctl start mtg1 mtg2 mtg3 && echo "▶️  Запущены"
+mtg --version && echo "🎉 Готово!"
+EOF
+
+cat > /usr/local/bin/mlink.sh << 'EOF'
+#!/bin/bash
+IP=$(curl -s ifconfig.me)
+S1="ВАШ_СЕКРЕТ_1"
+S2="ВАШ_СЕКРЕТ_2"
+S3="ВАШ_СЕКРЕТ_3"
+echo "🔗 ССЫЛКИ MTG ПРОКСИ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "🔹 mtg1 (443 cloudflare.com):"
+echo "   https://t.me/proxy?server=${IP}&port=443&secret=${S1}"
+echo ""
+echo "🔹 mtg2 (5223 apple.com):"
+echo "   https://t.me/proxy?server=${IP}&port=5223&secret=${S2}"
+echo ""
+echo "🔹 mtg3 (8530 microsoft.com):"
+echo "   https://t.me/proxy?server=${IP}&port=8530&secret=${S3}"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+chmod +x /usr/local/bin/mban.sh /usr/local/bin/mclear.sh \
+         /usr/local/bin/mupdate.sh /usr/local/bin/mlink.sh && \
+sed -i '/alias mban=/d;/alias mclear=/d;/alias mupdate=/d;/alias mlink=/d;/alias mnew=/d' /root/.bashrc && \
+cat >> /root/.bashrc << 'BASHEOF'
+alias mban='/usr/local/bin/mban.sh'
+alias mclear='/usr/local/bin/mclear.sh'
+alias mupdate='/usr/local/bin/mupdate.sh'
+alias mlink='/usr/local/bin/mlink.sh'
+alias mnew='CURRENT=$(mtg --version | grep -oP "2\.\d+\.\d+"); LATEST=$(curl -s https://api.github.com/repos/9seconds/mtg/releases/latest | grep -oP "(?<=\"tag_name\": \"v)\d+\.\d+\.\d+"); echo "Текущая: $CURRENT | Последняя: $LATEST"; [ "$CURRENT" = "$LATEST" ] && echo "✅ Актуальная" || echo "⚠️ Доступно обновление!"'
+BASHEOF
+source /root/.bashrc && echo "✅ Все алиасы MTG установлены"</textarea>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-text">После установки mlink отредактируй файл — вставь реальные секреты: <code class="inline">nano /usr/local/bin/mlink.sh</code></div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="net-aliases">
+  <h2><span class="num">10</span>Алиасы — сеть</h2>
+
+  <h3>nstat и nstats — загрузка сети</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code><span class="cm"># Включаем sysstat</span>
+sed -i 's/ENABLED="false"/ENABLED="true"/' /etc/default/sysstat && \
+systemctl enable sysstat && systemctl start sysstat
+
+cat > /usr/local/bin/nstat.sh << 'EOF'
+#!/bin/bash
+IFACE=$(ip route | grep default | awk '{print $5}' | head -1)
+RX1=$(cat /sys/class/net/$IFACE/statistics/rx_bytes)
+TX1=$(cat /sys/class/net/$IFACE/statistics/tx_bytes)
+sleep 3
+RX2=$(cat /sys/class/net/$IFACE/statistics/rx_bytes)
+TX2=$(cat /sys/class/net/$IFACE/statistics/tx_bytes)
+RX_RATE=$(echo "scale=2; ($RX2 - $RX1) * 8 / 3 / 1000000" | bc)
+TX_RATE=$(echo "scale=2; ($TX2 - $TX1) * 8 / 3 / 1000000" | bc)
+echo "🌐 СЕТЕВАЯ СТАТИСТИКА ($IFACE)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Сейчас:"
+echo ""
+echo "   ⬇️  RX: ${RX_RATE} Mbps"
+echo "   ⬆️  TX: ${TX_RATE} Mbps"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/nstats.sh << 'EOF'
+#!/bin/bash
+IFACE=$(ip route | grep default | awk '{print $5}' | head -1)
+echo "🌐 СЕТЕВАЯ СТАТИСТИКА ($IFACE)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Текущая загрузка (5 сек замер):"
+echo ""
+RX1=$(cat /sys/class/net/$IFACE/statistics/rx_bytes)
+TX1=$(cat /sys/class/net/$IFACE/statistics/tx_bytes)
+sleep 5
+RX2=$(cat /sys/class/net/$IFACE/statistics/rx_bytes)
+TX2=$(cat /sys/class/net/$IFACE/statistics/tx_bytes)
+RX_RATE=$(echo "scale=2; ($RX2 - $RX1) * 8 / 5 / 1000000" | bc)
+TX_RATE=$(echo "scale=2; ($TX2 - $TX1) * 8 / 5 / 1000000" | bc)
+echo "   ⬇️  RX: ${RX_RATE} Mbps"
+echo "   ⬆️  TX: ${TX_RATE} Mbps"
+sar_stats() {
+    local lines=$1
+    local data=$(sar -n DEV 2>/dev/null | grep "$IFACE" | tail -$lines)
+    echo "$data" | awk '{s_rx+=$5;s_tx+=$6;if($5>m_rx)m_rx=$5;if($6>m_tx)m_tx=$6;c++} END{if(c>0)printf "%.2f %.2f %.2f %.2f\n",s_rx*8/1000/c,m_rx*8/1000,s_tx*8/1000/c,m_tx*8/1000;else print "0 0 0 0"}'
+}
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🕐 За 2 часа (avg / макс):"
+echo ""
+read AVG_RX MAX_RX AVG_TX MAX_TX <<< $(sar_stats 24)
+echo "   ⬇️  RX: avg ${AVG_RX:-0} Mbps / макс ${MAX_RX:-0} Mbps"
+echo "   ⬆️  TX: avg ${AVG_TX:-0} Mbps / макс ${MAX_TX:-0} Mbps"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📅 За 24 часа (avg / макс):"
+echo ""
+read AVG_RX MAX_RX AVG_TX MAX_TX <<< $(sar_stats 288)
+echo "   ⬇️  RX: avg ${AVG_RX:-0} Mbps / макс ${MAX_RX:-0} Mbps"
+echo "   ⬆️  TX: avg ${AVG_TX:-0} Mbps / макс ${MAX_TX:-0} Mbps"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+chmod +x /usr/local/bin/nstat.sh /usr/local/bin/nstats.sh && \
+sed -i '/alias nstat=/d;/alias nstats=/d' /root/.bashrc && \
+cat >> /root/.bashrc << 'BASHEOF'
+alias nstat='/usr/local/bin/nstat.sh'
+alias nstats='/usr/local/bin/nstats.sh'
+BASHEOF
+source /root/.bashrc && echo "✅ OK"</code></pre>
+    <textarea hidden># Включаем sysstat
+sed -i 's/ENABLED="false"/ENABLED="true"/' /etc/default/sysstat && \
+systemctl enable sysstat && systemctl start sysstat
+
+cat > /usr/local/bin/nstat.sh << 'EOF'
+#!/bin/bash
+IFACE=$(ip route | grep default | awk '{print $5}' | head -1)
+RX1=$(cat /sys/class/net/$IFACE/statistics/rx_bytes)
+TX1=$(cat /sys/class/net/$IFACE/statistics/tx_bytes)
+sleep 3
+RX2=$(cat /sys/class/net/$IFACE/statistics/rx_bytes)
+TX2=$(cat /sys/class/net/$IFACE/statistics/tx_bytes)
+RX_RATE=$(echo "scale=2; ($RX2 - $RX1) * 8 / 3 / 1000000" | bc)
+TX_RATE=$(echo "scale=2; ($TX2 - $TX1) * 8 / 3 / 1000000" | bc)
+echo "🌐 СЕТЕВАЯ СТАТИСТИКА ($IFACE)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Сейчас:"
+echo ""
+echo "   ⬇️  RX: ${RX_RATE} Mbps"
+echo "   ⬆️  TX: ${TX_RATE} Mbps"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/nstats.sh << 'EOF'
+#!/bin/bash
+IFACE=$(ip route | grep default | awk '{print $5}' | head -1)
+echo "🌐 СЕТЕВАЯ СТАТИСТИКА ($IFACE)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "⚡ Текущая загрузка (5 сек замер):"
+echo ""
+RX1=$(cat /sys/class/net/$IFACE/statistics/rx_bytes)
+TX1=$(cat /sys/class/net/$IFACE/statistics/tx_bytes)
+sleep 5
+RX2=$(cat /sys/class/net/$IFACE/statistics/rx_bytes)
+TX2=$(cat /sys/class/net/$IFACE/statistics/tx_bytes)
+RX_RATE=$(echo "scale=2; ($RX2 - $RX1) * 8 / 5 / 1000000" | bc)
+TX_RATE=$(echo "scale=2; ($TX2 - $TX1) * 8 / 5 / 1000000" | bc)
+echo "   ⬇️  RX: ${RX_RATE} Mbps"
+echo "   ⬆️  TX: ${TX_RATE} Mbps"
+sar_stats() {
+    local lines=$1
+    local data=$(sar -n DEV 2>/dev/null | grep "$IFACE" | tail -$lines)
+    echo "$data" | awk '{s_rx+=$5;s_tx+=$6;if($5>m_rx)m_rx=$5;if($6>m_tx)m_tx=$6;c++} END{if(c>0)printf "%.2f %.2f %.2f %.2f\n",s_rx*8/1000/c,m_rx*8/1000,s_tx*8/1000/c,m_tx*8/1000;else print "0 0 0 0"}'
+}
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🕐 За 2 часа (avg / макс):"
+echo ""
+read AVG_RX MAX_RX AVG_TX MAX_TX <<< $(sar_stats 24)
+echo "   ⬇️  RX: avg ${AVG_RX:-0} Mbps / макс ${MAX_RX:-0} Mbps"
+echo "   ⬆️  TX: avg ${AVG_TX:-0} Mbps / макс ${MAX_TX:-0} Mbps"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📅 За 24 часа (avg / макс):"
+echo ""
+read AVG_RX MAX_RX AVG_TX MAX_TX <<< $(sar_stats 288)
+echo "   ⬇️  RX: avg ${AVG_RX:-0} Mbps / макс ${MAX_RX:-0} Mbps"
+echo "   ⬆️  TX: avg ${AVG_TX:-0} Mbps / макс ${MAX_TX:-0} Mbps"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+chmod +x /usr/local/bin/nstat.sh /usr/local/bin/nstats.sh && \
+sed -i '/alias nstat=/d;/alias nstats=/d' /root/.bashrc && \
+cat >> /root/.bashrc << 'BASHEOF'
+alias nstat='/usr/local/bin/nstat.sh'
+alias nstats='/usr/local/bin/nstats.sh'
+BASHEOF
+source /root/.bashrc && echo "✅ OK"</textarea>
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="sys-aliases">
+  <h2><span class="num">11</span>Алиасы — система</h2>
+
+  <h3>cstat, fban, cboot, crstat, mhelp — одним блоком</h3>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>cat > /usr/local/bin/cstat.sh << 'EOF'
+#!/bin/bash
+echo "💻 СИСТЕМНАЯ СТАТИСТИКА"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+CPU=$(top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d. -f1)
+RAM_TOTAL=$(free -m | grep Mem | awk '{print $2}')
+RAM_USED=$(free -m | grep Mem | awk '{print $3}')
+RAM_PCT=$(echo "scale=0; $RAM_USED * 100 / $RAM_TOTAL" | bc)
+echo "⚡ Сейчас:"
+echo ""
+echo "   🔲 CPU: ${CPU}%"
+echo "   🧠 RAM: ${RAM_USED}MB / ${RAM_TOTAL}MB (${RAM_PCT}%)"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔝 Топ 5 по CPU:"
+echo ""
+ps aux --sort=-%cpu | awk 'NR>1 && NR<=6 {printf "   %s%%  %s\n", $3, $11}'
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔝 Топ 5 по RAM:"
+echo ""
+ps aux --sort=-%mem | awk 'NR>1 && NR<=6 {printf "   %s%%  %s\n", $4, $11}'
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/fban.sh << 'EOF'
+#!/bin/bash
+echo "🛡️  Fail2ban статус"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+fail2ban-client status | grep 'Jail list' | sed 's/.*Jail list:\s*//' | tr ',' '\n' | while read JAIL; do
+    JAIL=$(echo $JAIL | xargs)
+    [ -z "$JAIL" ] && continue
+    COUNT=$(fail2ban-client status $JAIL | grep "Currently banned" | awk '{print $NF}')
+    BANNED=$(fail2ban-client status $JAIL | grep "Banned IP list" | sed 's/.*Banned IP list:\s*//')
+    case "$JAIL" in
+        sshd) echo "" && echo "🔑 SSH брутфорс — забанено: $COUNT" ;;
+        *)    echo "" && echo "🚫 $JAIL — забанено: $COUNT" ;;
+    esac
+    if [ -n "$BANNED" ] && [ "$BANNED" != " " ]; then
+        for IP in $BANNED; do
+            INFO=$(curl -s https://ipinfo.io/$IP | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('org','?'), '|', d.get('city','?'))" 2>/dev/null)
+            echo "   🔴 $IP — $INFO"
+        done
+    fi
+done
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/cboot.sh << 'EOF'
+#!/bin/bash
+echo "🚀 АВТОСТАРТ СЕРВИСОВ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+for entry in 'mtg1:MTG Proxy 1 (443 cloudflare.com)' 'mtg2:MTG Proxy 2 (5223 apple.com)' 'mtg3:MTG Proxy 3 (8530 microsoft.com)' 'fail2ban:Fail2ban' 'ssh:SSH'; do
+    NAME="${entry%%:*}"
+    DESC="${entry##*:}"
+    STATUS=$(systemctl is-enabled $NAME 2>/dev/null)
+    ACTIVE=$(systemctl is-active $NAME 2>/dev/null)
+    if [ "$STATUS" = "enabled" ] && [ "$ACTIVE" = "active" ]; then
+        echo "   ✅ $DESC"
+    elif [ "$STATUS" = "enabled" ]; then
+        echo "   ⚠️  $DESC (включён но не запущен)"
+    else
+        echo "   ❌ $DESC (отключён)"
+    fi
+done
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/crstat.sh << 'EOF'
+#!/bin/bash
+human_schedule() {
+    local s=$1
+    case "$s" in
+        "*/10 * * * *") echo "каждые 10 минут" ;;
+        "*/5 * * * *")  echo "каждые 5 минут" ;;
+        "*/2 * * * *")  echo "каждые 2 минуты" ;;
+        "59 23 * * *")  echo "ежедневно в 23:59" ;;
+        *)              echo "$s" ;;
+    esac
+}
+echo "⏰ CRON ЗАДАЧИ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+for f in /etc/cron.d/mtg-autoban /etc/cron.d/mtg-killbanned /etc/cron.d/mtg-logger /etc/cron.d/sysstat; do
+    [[ ! -f "$f" ]] && continue
+    NAME=$(basename $f)
+    echo ""
+    echo "📋 $NAME:"
+    while IFS= read -r line; do
+        [[ "$line" =~ ^[[:space:]]*$ ]] && continue
+        [[ "$line" =~ ^(PATH|SHELL|MAILTO)= ]] && continue
+        if [[ "$line" =~ ^#[*/0-9] ]]; then
+            REST="${line:1}"
+            SCHEDULE=$(echo "$REST" | awk '{print $1,$2,$3,$4,$5}')
+            CMD=$(echo "$REST" | awk '{print $NF}' | xargs basename)
+            echo "   💤 $(human_schedule "$SCHEDULE") → $CMD"
+            continue
+        fi
+        [[ "$line" =~ ^# ]] && continue
+        SCHEDULE=$(echo "$line" | awk '{print $1,$2,$3,$4,$5}')
+        CMD=$(echo "$line" | awk '{print $NF}' | xargs basename)
+        echo "   🔹 $(human_schedule "$SCHEDULE") → $CMD"
+    done < "$f"
+done
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/mhelp.sh << 'EOF'
+#!/bin/bash
+echo "📖 СПРАВКА ПО АЛИАСАМ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "📊 MTG статистика:"
+echo "   mstat   — подключения сейчас"
+echo "   mstats  — подключения + история за 2ч/24ч"
+echo "   mstatu  — уникальные клиенты сейчас"
+echo "   mban    — список забаненных IP"
+echo "   mclear  — удалить все баны"
+echo ""
+echo "🔄 MTG обновление:"
+echo "   mnew    — проверить новую версию MTG"
+echo "   mupdate — обновить MTG до последней версии"
+echo ""
+echo "🔗 Ссылки:"
+echo "   mlink   — ссылки для подключения"
+echo ""
+echo "🌐 Сеть:"
+echo "   nstat   — загрузка сети сейчас"
+echo "   nstats  — загрузка сети + история за 2ч/24ч"
+echo ""
+echo "💻 Система:"
+echo "   cstat   — CPU, RAM и топ процессов"
+echo "   cboot   — статус автостарта сервисов"
+echo "   crstat  — список cron задач"
+echo "   fban    — статус fail2ban"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "   mhelp   — эта справка"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+chmod +x /usr/local/bin/cstat.sh /usr/local/bin/fban.sh \
+         /usr/local/bin/cboot.sh /usr/local/bin/crstat.sh \
+         /usr/local/bin/mhelp.sh && \
+sed -i '/alias cstat=/d;/alias fban=/d;/alias cboot=/d;/alias crstat=/d;/alias mhelp=/d' /root/.bashrc && \
+cat >> /root/.bashrc << 'BASHEOF'
+alias cstat='/usr/local/bin/cstat.sh'
+alias fban='/usr/local/bin/fban.sh'
+alias cboot='/usr/local/bin/cboot.sh'
+alias crstat='/usr/local/bin/crstat.sh'
+alias mhelp='/usr/local/bin/mhelp.sh'
+BASHEOF
+source /root/.bashrc && mhelp</code></pre>
+    <textarea hidden>cat > /usr/local/bin/cstat.sh << 'EOF'
+#!/bin/bash
+echo "💻 СИСТЕМНАЯ СТАТИСТИКА"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+CPU=$(top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d. -f1)
+RAM_TOTAL=$(free -m | grep Mem | awk '{print $2}')
+RAM_USED=$(free -m | grep Mem | awk '{print $3}')
+RAM_PCT=$(echo "scale=0; $RAM_USED * 100 / $RAM_TOTAL" | bc)
+echo "⚡ Сейчас:"
+echo ""
+echo "   🔲 CPU: ${CPU}%"
+echo "   🧠 RAM: ${RAM_USED}MB / ${RAM_TOTAL}MB (${RAM_PCT}%)"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔝 Топ 5 по CPU:"
+echo ""
+ps aux --sort=-%cpu | awk 'NR>1 && NR<=6 {printf "   %s%%  %s\n", $3, $11}'
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔝 Топ 5 по RAM:"
+echo ""
+ps aux --sort=-%mem | awk 'NR>1 && NR<=6 {printf "   %s%%  %s\n", $4, $11}'
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/fban.sh << 'EOF'
+#!/bin/bash
+echo "🛡️  Fail2ban статус"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+fail2ban-client status | grep 'Jail list' | sed 's/.*Jail list:\s*//' | tr ',' '\n' | while read JAIL; do
+    JAIL=$(echo $JAIL | xargs)
+    [ -z "$JAIL" ] && continue
+    COUNT=$(fail2ban-client status $JAIL | grep "Currently banned" | awk '{print $NF}')
+    BANNED=$(fail2ban-client status $JAIL | grep "Banned IP list" | sed 's/.*Banned IP list:\s*//')
+    case "$JAIL" in
+        sshd) echo "" && echo "🔑 SSH брутфорс — забанено: $COUNT" ;;
+        *)    echo "" && echo "🚫 $JAIL — забанено: $COUNT" ;;
+    esac
+    if [ -n "$BANNED" ] && [ "$BANNED" != " " ]; then
+        for IP in $BANNED; do
+            INFO=$(curl -s https://ipinfo.io/$IP | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('org','?'), '|', d.get('city','?'))" 2>/dev/null)
+            echo "   🔴 $IP — $INFO"
+        done
+    fi
+done
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/cboot.sh << 'EOF'
+#!/bin/bash
+echo "🚀 АВТОСТАРТ СЕРВИСОВ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+for entry in 'mtg1:MTG Proxy 1 (443 cloudflare.com)' 'mtg2:MTG Proxy 2 (5223 apple.com)' 'mtg3:MTG Proxy 3 (8530 microsoft.com)' 'fail2ban:Fail2ban' 'ssh:SSH'; do
+    NAME="${entry%%:*}"
+    DESC="${entry##*:}"
+    STATUS=$(systemctl is-enabled $NAME 2>/dev/null)
+    ACTIVE=$(systemctl is-active $NAME 2>/dev/null)
+    if [ "$STATUS" = "enabled" ] && [ "$ACTIVE" = "active" ]; then
+        echo "   ✅ $DESC"
+    elif [ "$STATUS" = "enabled" ]; then
+        echo "   ⚠️  $DESC (включён но не запущен)"
+    else
+        echo "   ❌ $DESC (отключён)"
+    fi
+done
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/crstat.sh << 'EOF'
+#!/bin/bash
+human_schedule() {
+    local s=$1
+    case "$s" in
+        "*/10 * * * *") echo "каждые 10 минут" ;;
+        "*/5 * * * *")  echo "каждые 5 минут" ;;
+        "*/2 * * * *")  echo "каждые 2 минуты" ;;
+        "59 23 * * *")  echo "ежедневно в 23:59" ;;
+        *)              echo "$s" ;;
+    esac
+}
+echo "⏰ CRON ЗАДАЧИ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+for f in /etc/cron.d/mtg-autoban /etc/cron.d/mtg-killbanned /etc/cron.d/mtg-logger /etc/cron.d/sysstat; do
+    [[ ! -f "$f" ]] && continue
+    NAME=$(basename $f)
+    echo ""
+    echo "📋 $NAME:"
+    while IFS= read -r line; do
+        [[ "$line" =~ ^[[:space:]]*$ ]] && continue
+        [[ "$line" =~ ^(PATH|SHELL|MAILTO)= ]] && continue
+        if [[ "$line" =~ ^#[*/0-9] ]]; then
+            REST="${line:1}"
+            SCHEDULE=$(echo "$REST" | awk '{print $1,$2,$3,$4,$5}')
+            CMD=$(echo "$REST" | awk '{print $NF}' | xargs basename)
+            echo "   💤 $(human_schedule "$SCHEDULE") → $CMD"
+            continue
+        fi
+        [[ "$line" =~ ^# ]] && continue
+        SCHEDULE=$(echo "$line" | awk '{print $1,$2,$3,$4,$5}')
+        CMD=$(echo "$line" | awk '{print $NF}' | xargs basename)
+        echo "   🔹 $(human_schedule "$SCHEDULE") → $CMD"
+    done < "$f"
+done
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+cat > /usr/local/bin/mhelp.sh << 'EOF'
+#!/bin/bash
+echo "📖 СПРАВКА ПО АЛИАСАМ"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "📊 MTG статистика:"
+echo "   mstat   — подключения сейчас"
+echo "   mstats  — подключения + история за 2ч/24ч"
+echo "   mstatu  — уникальные клиенты сейчас"
+echo "   mban    — список забаненных IP"
+echo "   mclear  — удалить все баны"
+echo ""
+echo "🔄 MTG обновление:"
+echo "   mnew    — проверить новую версию MTG"
+echo "   mupdate — обновить MTG до последней версии"
+echo ""
+echo "🔗 Ссылки:"
+echo "   mlink   — ссылки для подключения"
+echo ""
+echo "🌐 Сеть:"
+echo "   nstat   — загрузка сети сейчас"
+echo "   nstats  — загрузка сети + история за 2ч/24ч"
+echo ""
+echo "💻 Система:"
+echo "   cstat   — CPU, RAM и топ процессов"
+echo "   cboot   — статус автостарта сервисов"
+echo "   crstat  — список cron задач"
+echo "   fban    — статус fail2ban"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "   mhelp   — эта справка"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+EOF
+
+chmod +x /usr/local/bin/cstat.sh /usr/local/bin/fban.sh \
+         /usr/local/bin/cboot.sh /usr/local/bin/crstat.sh \
+         /usr/local/bin/mhelp.sh && \
+sed -i '/alias cstat=/d;/alias fban=/d;/alias cboot=/d;/alias crstat=/d;/alias mhelp=/d' /root/.bashrc && \
+cat >> /root/.bashrc << 'BASHEOF'
+alias cstat='/usr/local/bin/cstat.sh'
+alias fban='/usr/local/bin/fban.sh'
+alias cboot='/usr/local/bin/cboot.sh'
+alias crstat='/usr/local/bin/crstat.sh'
+alias mhelp='/usr/local/bin/mhelp.sh'
+BASHEOF
+source /root/.bashrc && mhelp</textarea>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="check">
+  <h2><span class="num">12</span>Финальная проверка</h2>
+  <div class="code-wrap">
+    <button class="copy-btn" onclick="cp(this)">copy</button>
+    <pre><code>echo "=== ВРЕМЯ ===" && date && \
+echo "" && echo "=== MTG ВЕРСИЯ ===" && mnew && \
+echo "" && echo "=== СЕРВИСЫ ===" && cboot && \
+echo "" && echo "=== ПОДКЛЮЧЕНИЯ ===" && mstat && \
+echo "" && echo "=== UFW ===" && ufw status && \
+echo "" && echo "=== CRON ===" && crstat && \
+echo "" && echo "=== FAIL2BAN ===" && fban</code></pre>
+    <textarea hidden>echo "=== ВРЕМЯ ===" && date && \
+echo "" && echo "=== MTG ВЕРСИЯ ===" && mnew && \
+echo "" && echo "=== СЕРВИСЫ ===" && cboot && \
+echo "" && echo "=== ПОДКЛЮЧЕНИЯ ===" && mstat && \
+echo "" && echo "=== UFW ===" && ufw status && \
+echo "" && echo "=== CRON ===" && crstat && \
+echo "" && echo "=== FAIL2BAN ===" && fban</textarea>
+  </div>
+</section>
+
+<!-- 13 -->
+<section id="links">
+  <h2><span class="num">13</span>Ссылки для Telegram</h2>
+  <div class="callout ok">
+    <span class="callout-icon">📱</span>
+    <div class="callout-text">
+      Откройте ссылку на телефоне — Telegram добавит прокси автоматически.<br>
+      Или вручную: <strong>Настройки → Данные и память → Настройки прокси → Добавить прокси (MTProto)</strong>
+    </div>
+  </div>
+  <p>После установки запустите <code class="inline">mlink</code> — выведет все три ссылки с реальным IP.</p>
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-text">Не забудь вставить секреты в файл mlink: <code class="inline">nano /usr/local/bin/mlink.sh</code></div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section id="cheatsheet">
+  <h2><span class="num">14</span>Шпаргалка</h2>
+  <div class="alias-grid">
+    <div class="alias-card"><div class="alias-group">📊 MTG</div><div class="alias-name">mstat</div><div class="alias-desc">Подключения сейчас по всем 3 инстансам</div></div>
+    <div class="alias-card"><div class="alias-group">📊 MTG</div><div class="alias-name">mstats</div><div class="alias-desc">Подключения + история за 2ч/24ч (среднее/макс)</div></div>
+    <div class="alias-card"><div class="alias-group">📊 MTG</div><div class="alias-name">mstatu</div><div class="alias-desc">Уникальные клиенты сейчас</div></div>
+    <div class="alias-card"><div class="alias-group">📊 MTG</div><div class="alias-name">mban</div><div class="alias-desc">Список забаненных IP с геоинфо</div></div>
+    <div class="alias-card"><div class="alias-group">📊 MTG</div><div class="alias-name">mclear</div><div class="alias-desc">Удалить все баны UFW</div></div>
+    <div class="alias-card"><div class="alias-group">🔄 Обновление</div><div class="alias-name">mnew</div><div class="alias-desc">Проверить новую версию MTG</div></div>
+    <div class="alias-card"><div class="alias-group">🔄 Обновление</div><div class="alias-name">mupdate</div><div class="alias-desc">Обновить MTG до последней версии</div></div>
+    <div class="alias-card"><div class="alias-group">🔗 Ссылки</div><div class="alias-name">mlink</div><div class="alias-desc">Ссылки для подключения всех 3 прокси</div></div>
+    <div class="alias-card"><div class="alias-group">🌐 Сеть</div><div class="alias-name">nstat</div><div class="alias-desc">Загрузка сети сейчас (3 сек замер)</div></div>
+    <div class="alias-card"><div class="alias-group">🌐 Сеть</div><div class="alias-name">nstats</div><div class="alias-desc">Загрузка сети + история за 2ч/24ч</div></div>
+    <div class="alias-card"><div class="alias-group">💻 Система</div><div class="alias-name">cstat</div><div class="alias-desc">CPU, RAM и топ 5 процессов</div></div>
+    <div class="alias-card"><div class="alias-group">💻 Система</div><div class="alias-name">cboot</div><div class="alias-desc">Статус автостарта всех сервисов</div></div>
+    <div class="alias-card"><div class="alias-group">💻 Система</div><div class="alias-name">crstat</div><div class="alias-desc">Список и статус cron задач</div></div>
+    <div class="alias-card"><div class="alias-group">💻 Система</div><div class="alias-name">fban</div><div class="alias-desc">Статус fail2ban и забаненные IP</div></div>
+    <div class="alias-card"><div class="alias-group">📖 Справка</div><div class="alias-name">mhelp</div><div class="alias-desc">Справка по всем алиасам в терминале</div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-note">// MTG Server Guide · Ubuntu 22.04 · апрель 2026</div>
+  <div class="footer-stats">
+    <div class="stat"><div class="stat-val">3</div><div class="stat-label">инстанса MTG</div></div>
+    <div class="stat"><div class="stat-val">15</div><div class="stat-label">алиасов</div></div>
+    <div class="stat"><div class="stat-val">500</div><div class="stat-label">порог бана</div></div>
+    <div class="stat"><div class="stat-val">14</div><div class="stat-label">URL doppelganger</div></div>
+  </div>
+</footer>
+
+</div>
+<script>
+function cp(btn) {
+  var wrap = btn.closest('.code-wrap');
+  var text = wrap.querySelector('textarea').value;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'copied!';
+    btn.classList.add('ok');
+    setTimeout(function() { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
